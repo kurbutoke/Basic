@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ff4600">
+    <title>Basic Fit QR Generator</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+
+    <div class="card">
+        <h1>Basic Fit QR Generator</h1>
+
+        <div id="loginForm">
+            <button class="help-trigger" onclick="toggleModal(true)">Où trouver mes infos ?</button>
+
+            <div class="profile-manager">
+                <select id="profileSelect" class="profile-select" onchange="loadProfile()">
+                    <option value="">Nouveau profil</option>
+                </select>
+                <button class="btn-icon" id="favBtn" onclick="toggleFavorite()"
+                    title="Favori (Démarrage auto)">☆</button>
+                <button class="btn-icon" onclick="saveProfile()" title="Sauvegarder">💾</button>
+                <button class="btn-icon" onclick="deleteProfile()" title="Supprimer">🗑️</button>
+            </div>
+
+            <div class="form-group">
+                <label for="cardNumber">Numéro de Carte</label>
+                <div class="input-wrapper">
+                    <input type="text" id="cardNumber" placeholder="Ex: V012345678" oninput="validateCard()">
+                    <button class="input-toggle" onclick="toggleInput('cardNumber', this)">👁️</button>
+                </div>
+                <div id="cardError" class="validation-msg">Format invalide (Ex: V123456789)</div>
+            </div>
+
+            <div class="form-group">
+                <label for="deviceId">Device ID</label>
+                <div class="input-wrapper">
+                    <input type="password" id="deviceId" placeholder="Ex: 8d20fc96-..." oninput="validateDevice()">
+                    <button class="input-toggle" onclick="toggleInput('deviceId', this)">👁️</button>
+                </div>
+                <div id="deviceError" class="validation-msg">Format UUID invalide</div>
+            </div>
+
+            <button onclick="handleLogin()">Générer QR Code</button>
+        </div>
+
+        <div id="qrDisplay" class="hidden">
+            <div id="qrcode" onclick="toggleFullscreen()"></div>
+            <button class="exit-fullscreen" onclick="toggleFullscreen()">Fermer le plein écran</button>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+
+            <div class="info">
+                QR Code généré localement.<br>
+                Se rafraîchit toutes les 5s.
+                <br>
+                <a href="#" onclick="toggleFullscreen(); return false;"
+                    style="color: var(--primary-color); font-size: 0.8rem;">[🔍 Mode Plein Écran]</a>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="secondary" onclick="shareUrl()">Partager l'URL</button>
+                <button class="secondary" onclick="logout()"
+                    style="border: none; color: #999; font-size: 0.8rem; margin-top: 5px;">Modifier /
+                    Déconnexion</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Merci à <a href="https://blog.szeroki.fr/posts/les-qr-codes-de-basic-fit-comment-ca-fonctionne"
+            target="_blank">Szeroki</a> pour la documentation.
+    </div>
+
+    <div id="helpModal" class="modal-overlay" onclick="handleOverlayClick(event)">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Aide</h2>
+                <button class="modal-close" onclick="toggleModal(false)">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div class="help-section">
+                    <h3>Numéro de Carte</h3>
+                    <p>Votre numéro de membre se trouve dans votre espace client Basic-Fit ou sur votre carte physique
+                        (souvent au format V123456789).</p>
+                </div>
+                <div class="help-section">
+                    <h3>Device ID</h3>
+                    <p>C'est l'identifiant unique de votre téléphone autorisé. Pour le trouver, vous devez intercepter
+                        le trafic réseau de l'application officielle lors du démarrage (ex: via Charles Proxy ou HTTP
+                        Catcher) et chercher l'identifiant dans les requêtes API.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">URL copiée !</div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
