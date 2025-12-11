@@ -90,15 +90,26 @@
             </div>
             <div class="modal-content">
                 <div class="help-section">
-                    <h3>Numéro de Carte</h3>
-                    <p>Votre numéro de membre se trouve dans votre espace client Basic-Fit ou sur votre carte physique
-                        (souvent au format V123456789).</p>
-                </div>
-                <div class="help-section">
-                    <h3>Device ID</h3>
-                    <p>C'est l'identifiant unique de votre téléphone autorisé. Pour le trouver, vous devez intercepter
-                        le trafic réseau de l'application officielle lors du démarrage (ex: via Charles Proxy ou HTTP
-                        Catcher) et chercher l'identifiant dans les requêtes API.</p>
+                    <h3>Comment récupérer mes infos ?</h3>
+                    <p>Pour faire fonctionner le générateur, vous avez besoin de votre <strong>Numéro de Carte</strong>
+                        et de votre <strong>Device ID</strong>.</p>
+
+                    <h4>Étape 1 : Déconnexion</h4>
+                    <p>Sur l'appareil qui génère habituellement les QR codes, déconnectez-vous de l'application
+                        Basic-Fit.</p>
+
+                    <h4>Étape 2 : Page de connexion</h4>
+                    <p>Lancez la page de connexion à l'aide du bouton "Connexion".</p>
+
+                    <h4>Étape 3 : Copier l'URL de la popup</h4>
+                    <p>Copiez l'URL de la popup de la page de connexion en appuyant longuement sur l'URL puis "Copier".
+                    </p>
+                    <img class="image-placeholder" src="./sc/login.gif">
+
+                    <h4>Étape 4 : Récupérer les infos</h4>
+                    <p>Par la suite rendez-vous sur n'importe quel application (Notes/Messages/...) pour coller l'URL,
+                        et trouvez les paramètres <code>deviceID</code> (Device ID) et <code>card-Number</code> (Numéro
+                        de Carte).</p>
                 </div>
             </div>
         </div>

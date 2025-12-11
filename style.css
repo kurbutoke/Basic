@@ -387,6 +387,31 @@ button.secondary:hover {
     margin: 0;
 }
 
+.help-section h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 1rem 0 0.5rem;
+    color: var(--text-color);
+}
+
+.image-placeholder {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px auto;
+    border-radius: 8px;
+    border: 1px solid var(--input-border);
+}
+
+code {
+    background-color: var(--input-bg);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: var(--primary-color);
+    font-size: 0.9em;
+}
+
 .help-trigger {
     background: none;
     border: none;
