@@ -28,9 +28,14 @@ Voici la méthode pour retrouver vos identifiants :
 3. **Copier l'URL** : Une fois sur la page de connexion (popup), appuyez longuement sur la barre d'adresse (l'URL) et sélectionnez "Copier".
    
    ![Tuto Login](./sc/login.gif)
-4. **Récupérer les paramètres** : Ouvrez une application de notes (Notes, Messages, etc.) et collez l'URL. Cherchez ensuite les valeurs suivantes dans le texte collé :
-   - `card-Number=` (ex: `V123456789`)
-   - `deviceID=` (ex: `8d20fc96-...`)
+3. **Copier l'URL** : Une fois sur la page de connexion (popup), appuyez longuement sur la barre d'adresse (l'URL) et sélectionnez "Copier".
+   
+   ![Tuto Login](./sc/login.gif)
+4. **Utiliser les infos** : Revenez sur le générateur.
+   - **Option A (Facile)** : Collez directement l'URL complète dans le champ "Connexion via URL (Magic Link)". Le site remplira automatiquement vos infos.
+   - **Option B (Avancé)** : Collez l'URL dans une note pour chercher manuellement :
+     - `card-Number=` (ex: `V123456789`)
+     - `deviceID=` (ex: `8d20fc96-...`)
 
 *Note : Ces informations sont personnelles, ne les partagez pas.*
 
