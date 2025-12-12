@@ -40,8 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (profiles.length > 0) {
             document.getElementById('profileSelect').value = 0;
             loadProfile();
+            loadProfile();
         }
     }
+    updateUiState();
 });
 
 function updateProfileSelect() {
@@ -75,6 +77,62 @@ function loadProfile() {
         document.getElementById('deviceId').value = '';
         favBtn.textContent = '☆';
         resetValidation();
+    }
+    updateUiState();
+}
+
+function handleMagicUrlInput(input) {
+    const urlStr = input.value.trim();
+    if (!urlStr) return;
+
+    try {
+        // Try to create a URL object, but handle if it's just a query string or partial
+        let url;
+        if (urlStr.startsWith('http')) {
+            url = new URL(urlStr);
+        } else {
+            // Assume it might be a partial URL or just params
+            url = new URL('http://dummy.com/' + (urlStr.startsWith('?') ? urlStr : '?' + urlStr));
+        }
+
+        const params = url.searchParams;
+        let found = false;
+
+        // Look for parameters (case insensitive for keys slightly tricky with searchParams, 
+        // but parameters are usually standard. We'll check specific variations found in documentation/users)
+
+        // deviceID
+        let newDevice = params.get('deviceID') || params.get('deviceId') || params.get('device_id');
+
+        // card-Number
+        let newCard = params.get('card-Number') || params.get('cardNumber') || params.get('card_number');
+
+        if (newDevice) {
+            document.getElementById('deviceId').value = newDevice;
+            validateDevice();
+            found = true;
+        }
+
+        if (newCard) {
+            document.getElementById('cardNumber').value = newCard;
+            validateCard();
+            found = true;
+        }
+
+        if (found) {
+            const msg = document.getElementById('magicUrlMsg');
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+                input.value = ''; // Clear input on success
+            }, 2000);
+
+            // If both found, maybe we could auto-save or something, but let's just populate for now.
+        }
+
+    } catch (e) {
+        // Not a valid URL, ignore or could validate
+        console.log("Invalid URL input", e);
     }
 }
 
@@ -173,6 +231,7 @@ function validateCard() {
     const valid = regex.test(input.value.trim());
 
     setValidationState(input, error, valid);
+    updateUiState();
     return valid;
 }
 
@@ -183,7 +242,37 @@ function validateDevice() {
     const valid = regex.test(input.value.trim());
 
     setValidationState(input, error, valid);
+    updateUiState();
     return valid;
+}
+
+function updateUiState() {
+    const cardVal = document.getElementById('cardNumber').value.trim();
+    const deviceVal = document.getElementById('deviceId').value.trim();
+    const magicSection = document.getElementById('magicUrlSection');
+    const resetBtn = document.getElementById('resetBtn');
+
+    if (cardVal && deviceVal) {
+        magicSection.classList.add('hidden');
+        resetBtn.classList.remove('hidden');
+    } else {
+        magicSection.classList.remove('hidden');
+        resetBtn.classList.add('hidden');
+    }
+}
+
+function resetForm() {
+    document.getElementById('cardNumber').value = '';
+    document.getElementById('deviceId').value = '';
+    document.getElementById('magicUrl').value = '';
+
+    // Reset Select to default if it was on a profile? 
+    // Actually user might want to clear a profile's data but keep selection? 
+    // Let's just clear fields. If they select a profile again, it reloads.
+    document.getElementById('profileSelect').value = ""; // Set to "Nouveau profil"
+
+    resetValidation();
+    updateUiState();
 }
 
 function setValidationState(input, errorMsg, isValid) {

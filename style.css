@@ -4,11 +4,12 @@
     --card-bg: #ffffff;
     --text-color: #333;
     --sub-text: #666;
+    --error-color: #ff4600;
     --input-border: #ddd;
     --input-focus: #ff4600;
     --input-bg: #fff;
     --danger-color: #dc3545;
-    --success-color: #28a745;
+    --success-color: #4CAF50;
 }
 
 [data-theme="dark"] {
@@ -56,6 +57,31 @@ h1 {
 .form-group {
     margin-bottom: 1.2rem;
     text-align: left;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0;
+    color: var(--sub-text);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--input-border);
+}
+
+.divider::before {
+    margin-right: 10px;
+}
+
+.divider::after {
+    margin-left: 10px;
 }
 
 label {
@@ -147,11 +173,26 @@ input.invalid {
 
 .profile-select {
     flex-grow: 1;
-    padding: 8px;
+    padding: 10px 35px 10px 15px;
     border-radius: 8px;
     border: 1px solid var(--input-border);
-    background: var(--input-bg);
+    background-color: var(--input-bg);
     color: var(--text-color);
+    font-size: 0.95rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.profile-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
 }
 
 .btn-icon {

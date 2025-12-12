@@ -31,6 +31,17 @@
                 <button class="btn-icon" onclick="deleteProfile()" title="Supprimer">🗑️</button>
             </div>
 
+            <div class="form-group" id="magicUrlSection">
+                <label for="magicUrl">Connexion via URL (Magic Link)</label>
+                <div class="input-wrapper">
+                    <input type="text" id="magicUrl" placeholder="Coller l'URL de connexion ici..."
+                        oninput="handleMagicUrlInput(this)">
+                </div>
+                <div id="magicUrlMsg" class="validation-msg" style="color: var(--success-color)">Infos récupérées !
+                </div>
+                <div class="divider">ou</div>
+            </div>
+
             <div class="form-group">
                 <label for="cardNumber">Numéro de Carte</label>
                 <div class="input-wrapper">
@@ -50,6 +61,8 @@
             </div>
 
             <button onclick="handleLogin()">Générer QR Code</button>
+            <button id="resetBtn" class="secondary hidden" onclick="resetForm()"
+                style="margin-top: 10px;">Réinitialiser</button>
         </div>
 
         <div id="qrDisplay" class="hidden">
@@ -106,10 +119,12 @@
                     </p>
                     <img class="image-placeholder" src="./sc/login.gif">
 
-                    <h4>Étape 4 : Récupérer les infos</h4>
-                    <p>Par la suite rendez-vous sur n'importe quel application (Notes/Messages/...) pour coller l'URL,
-                        et trouvez les paramètres <code>deviceID</code> (Device ID) et <code>card-Number</code> (Numéro
-                        de Carte).</p>
+                    <h4>Étape 4 : Coller l'URL</h4>
+                    <p><strong>• Option A (Facile) :</strong> Collez directement l'URL complète dans le champ
+                        "Connexion via URL".</p>
+                    <p><strong>• Option B (Avancé) :</strong> Collez l'URL ailleurs pour extraire manuellement
+                        <code>deviceID</code> et <code>card-Number</code>.
+                    </p>
                 </div>
             </div>
         </div>
