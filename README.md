@@ -28,9 +28,6 @@ Voici la méthode pour retrouver vos identifiants :
 3. **Copier l'URL** : Une fois sur la page de connexion (popup), appuyez longuement sur la barre d'adresse (l'URL) et sélectionnez "Copier".
    
    ![Tuto Login](./sc/login.gif)
-3. **Copier l'URL** : Une fois sur la page de connexion (popup), appuyez longuement sur la barre d'adresse (l'URL) et sélectionnez "Copier".
-   
-   ![Tuto Login](./sc/login.gif)
 4. **Utiliser les infos** : Revenez sur le générateur.
    - **Option A (Facile)** : Collez directement l'URL complète dans le champ "Connexion via URL (Magic Link)". Le site remplira automatiquement vos infos.
    - **Option B (Avancé)** : Collez l'URL dans une note pour chercher manuellement :
