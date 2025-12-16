@@ -2,7 +2,8 @@
 
 > **Accéder au site :** [https://kurbutoke.github.io/Basic/](https://kurbutoke.github.io/Basic/)
 
-Un générateur de QR Code web simple et efficace pour l'accès aux salles Basic Fit. Cette application vous permet de générer votre QR code d'accès directement depuis votre navigateur, sans avoir besoin de l'application officielle.
+**Basic Fit QR Generator** est une application web (PWA) gratuite et open-source pour générer votre **QR code d'accès Basic Fit**. 
+Plus besoin de l'application officielle : accédez à votre salle de sport rapidement, même sans connexion internet. Compatible **iPhone**, **Android**, PC et Mac.
 
 ## 🚀 Fonctionnalités
 
