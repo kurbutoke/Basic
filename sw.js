@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bf-qr-v2';
+const CACHE_NAME = 'bf-qr-v2.1';
 const ASSETS = [
     './',
     './index.html',
@@ -10,20 +10,26 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
+    // Force this service worker to become the active one immediately
+    self.skipWaiting();
     e.waitUntil(
         caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
     );
 });
 
 self.addEventListener('activate', (e) => {
+    // Take control of all clients immediately
     e.waitUntil(
-        caches.keys().then((keyList) => {
-            return Promise.all(keyList.map((key) => {
-                if (key !== CACHE_NAME) {
-                    return caches.delete(key);
-                }
-            }));
-        })
+        Promise.all([
+            self.clients.claim(),
+            caches.keys().then((keyList) => {
+                return Promise.all(keyList.map((key) => {
+                    if (key !== CACHE_NAME) {
+                        return caches.delete(key);
+                    }
+                }));
+            })
+        ])
     );
 });
 
