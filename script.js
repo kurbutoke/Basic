@@ -1,13 +1,15 @@
 let state = {
     cardNumber: '',
     deviceId: '',
-    timerInterval: null
+    timerInterval: null,
+    wakeLock: null
 };
 
 let profiles = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('theme') || (systemDark ? 'dark' : 'light');
     setTheme(savedTheme);
 
     const storedProfiles = localStorage.getItem('bf_profiles');
@@ -86,26 +88,21 @@ function handleMagicUrlInput(input) {
     if (!urlStr) return;
 
     try {
-        // Try to create a URL object, but handle if it's just a query string or partial
         let url;
         if (urlStr.startsWith('http')) {
             url = new URL(urlStr);
         } else {
-            // Assume it might be a partial URL or just params
             url = new URL('http://dummy.com/' + (urlStr.startsWith('?') ? urlStr : '?' + urlStr));
         }
 
         const params = url.searchParams;
         let found = false;
 
-        // Look for parameters (case insensitive for keys slightly tricky with searchParams, 
-        // but parameters are usually standard. We'll check specific variations found in documentation/users)
+        // deviceID (magic link format) or device (share URL format)
+        let newDevice = params.get('deviceID') || params.get('deviceId') || params.get('device_id') || params.get('device');
 
-        // deviceID
-        let newDevice = params.get('deviceID') || params.get('deviceId') || params.get('device_id');
-
-        // card-Number
-        let newCard = params.get('card-Number') || params.get('cardNumber') || params.get('card_number');
+        // card-Number (magic link format) or card (share URL format)
+        let newCard = params.get('card-Number') || params.get('cardNumber') || params.get('card_number') || params.get('card');
 
         if (newDevice) {
             document.getElementById('deviceId').value = newDevice;
@@ -124,15 +121,29 @@ function handleMagicUrlInput(input) {
             msg.style.display = 'block';
             setTimeout(() => {
                 msg.style.display = 'none';
-                input.value = ''; // Clear input on success
+                input.value = '';
             }, 2000);
 
-            // If both found, maybe we could auto-save or something, but let's just populate for now.
+            // Auto-propose profile save if both card and device found
+            if (newCard && newDevice && validateCard() && validateDevice()) {
+                setTimeout(() => {
+                    if (confirm('Carte détectée ! Voulez-vous la sauvegarder en tant que nouveau profil ?')) {
+                        const name = prompt('Nom du profil :', 'Mon Profil');
+                        if (name) {
+                            profiles.push({ name, card: newCard, device: newDevice, favorite: false });
+                            saveProfilesToStorage();
+                            updateProfileSelect();
+                            document.getElementById('profileSelect').value = profiles.length - 1;
+                            loadProfile();
+                            showToast('Profil sauvegardé !');
+                        }
+                    }
+                }, 300);
+            }
         }
 
     } catch (e) {
-        // Not a valid URL, ignore or could validate
-        console.log("Invalid URL input", e);
+        console.log('Invalid URL input', e);
     }
 }
 
@@ -339,8 +350,19 @@ function handleLogin() {
 
 function logout() {
     clearInterval(state.timerInterval);
-    document.getElementById('qrDisplay').classList.add('hidden');
-    document.getElementById('loginForm').classList.remove('hidden');
+    releaseWakeLock();
+
+    const qrDisplay = document.getElementById('qrDisplay');
+    const loginForm = document.getElementById('loginForm');
+
+    qrDisplay.classList.add('fade-out');
+    setTimeout(() => {
+        qrDisplay.classList.add('hidden');
+        qrDisplay.classList.remove('fade-out');
+        loginForm.classList.remove('hidden');
+        loginForm.classList.add('fade-in');
+        setTimeout(() => loginForm.classList.remove('fade-in'), 400);
+    }, 300);
 
     document.getElementById('cardNumber').value = state.cardNumber;
     document.getElementById('deviceId').value = state.deviceId;
@@ -349,8 +371,17 @@ function logout() {
 }
 
 function showQrView() {
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('qrDisplay').classList.remove('hidden');
+    const loginForm = document.getElementById('loginForm');
+    const qrDisplay = document.getElementById('qrDisplay');
+
+    loginForm.classList.add('fade-out');
+    setTimeout(() => {
+        loginForm.classList.add('hidden');
+        loginForm.classList.remove('fade-out');
+        qrDisplay.classList.remove('hidden');
+        qrDisplay.classList.add('fade-in');
+        setTimeout(() => qrDisplay.classList.remove('fade-in'), 400);
+    }, 300);
 
     startTimer();
 }
@@ -443,7 +474,34 @@ function startTimer() {
 
 function toggleFullscreen() {
     const display = document.getElementById('qrDisplay');
+    const isEntering = !display.classList.contains('fullscreen');
     display.classList.toggle('fullscreen');
+
+    if (isEntering) {
+        requestWakeLock();
+    } else {
+        releaseWakeLock();
+    }
+}
+
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            state.wakeLock = await navigator.wakeLock.request('screen');
+            state.wakeLock.addEventListener('release', () => {
+                state.wakeLock = null;
+            });
+        }
+    } catch (e) {
+        console.log('Wake Lock not supported or failed:', e);
+    }
+}
+
+function releaseWakeLock() {
+    if (state.wakeLock) {
+        state.wakeLock.release();
+        state.wakeLock = null;
+    }
 }
 
 // PWA Service Worker
