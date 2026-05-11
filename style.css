@@ -62,7 +62,6 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle gradient overlay on body */
 body::before {
     content: '';
     position: fixed;
@@ -725,25 +724,39 @@ code {
 /* ===== Fullscreen Mode ===== */
 #qrDisplay.fullscreen {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: white;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
     z-index: 9999;
     padding: 0;
     margin: 0;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-#qrDisplay.fullscreen .progress-bar,
-#qrDisplay.fullscreen .info,
-#qrDisplay.fullscreen .secondary,
-#qrDisplay.fullscreen .cooldown-info {
-    display: none;
+[data-theme="dark"] #qrDisplay.fullscreen {
+    background: #1a1a1a;
+}
+
+body.fullscreen-active > *:not(.card) {
+    display: none !important;
+}
+
+body.fullscreen-active > .card {
+    position: static;
+    z-index: auto;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+#qrDisplay.fullscreen > *:not(#qrcode):not(.exit-fullscreen) {
+    display: none !important;
 }
 
 #qrDisplay.fullscreen #qrcode {
@@ -779,8 +792,58 @@ code {
     transform: translateY(-1px);
 }
 
+[data-theme="dark"] .exit-fullscreen {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ccc;
+}
+
+[data-theme="dark"] .exit-fullscreen:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
 #qrDisplay.fullscreen .exit-fullscreen {
     display: block;
+}
+
+/* ===== Custom Dialog ===== */
+.dialog-modal {
+    max-width: 360px;
+    text-align: center;
+}
+
+.dialog-modal p {
+    color: var(--text);
+    font-size: 0.95rem;
+    margin: 0.75rem 0 1.25rem;
+    line-height: 1.5;
+}
+
+.dialog-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--text);
+    font-size: 0.95rem;
+    margin-top: 8px;
+    font-family: inherit;
+}
+
+.dialog-input:focus {
+    outline: none;
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.dialog-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.dialog-actions button {
+    flex: 1;
 }
 
 /* ===== Responsive ===== */
@@ -804,8 +867,6 @@ code {
 }
 
 @media (hover: none) {
-
-    /* Disable hover effects on touch devices to avoid sticky states */
     button:hover {
         transform: none;
         box-shadow: none;

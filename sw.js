@@ -1,4 +1,5 @@
-const CACHE_NAME = 'bf-qr-v2.2';
+const CACHE_VERSION = 3;
+const CACHE_NAME = `bf-qr-v${CACHE_VERSION}`;
 const ASSETS = [
     './',
     './index.html',
@@ -35,7 +36,6 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
     e.respondWith(
         caches.match(e.request).then((cached) => {
-            // Stale-while-revalidate: serve cache immediately, update in background
             const fetchPromise = fetch(e.request).then((networkResponse) => {
                 if (networkResponse && networkResponse.status === 200) {
                     const clone = networkResponse.clone();
@@ -44,9 +44,9 @@ self.addEventListener('fetch', (e) => {
                     });
                 }
                 return networkResponse;
-            }).catch(() => cached);
+            }).catch(() => null);
 
-            return cached || fetchPromise;
+            return cached || fetchPromise.then(r => r || new Response('Offline', { status: 503 }));
         })
     );
 });

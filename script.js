@@ -7,6 +7,54 @@ let state = {
 
 let profiles = [];
 
+function showDialog({ title, message, type = 'alert', defaultValue = '' }) {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('dialogOverlay');
+        const titleEl = document.getElementById('dialogTitle');
+        const msgEl = document.getElementById('dialogMessage');
+        const inputEl = document.getElementById('dialogInput');
+        const confirmBtn = document.getElementById('dialogConfirm');
+        const cancelBtn = document.getElementById('dialogCancel');
+
+        titleEl.textContent = title || '';
+        msgEl.textContent = message;
+        inputEl.classList.toggle('hidden', type !== 'prompt');
+        cancelBtn.classList.toggle('hidden', type === 'alert');
+
+        if (type === 'prompt') {
+            inputEl.value = defaultValue;
+            setTimeout(() => inputEl.focus(), 100);
+        }
+
+        function cleanup(result) {
+            overlay.classList.remove('show');
+            confirmBtn.removeEventListener('click', onConfirm);
+            cancelBtn.removeEventListener('click', onCancel);
+            document.removeEventListener('keydown', onKey);
+            resolve(result);
+        }
+
+        function onConfirm() {
+            if (type === 'prompt') cleanup(inputEl.value || null);
+            else if (type === 'confirm') cleanup(true);
+            else cleanup(true);
+        }
+
+        function onCancel() { cleanup(type === 'prompt' ? null : false); }
+
+        function onKey(e) {
+            if (e.key === 'Enter') onConfirm();
+            else if (e.key === 'Escape') onCancel();
+        }
+
+        confirmBtn.addEventListener('click', onConfirm);
+        cancelBtn.addEventListener('click', onCancel);
+        document.addEventListener('keydown', onKey);
+
+        overlay.classList.add('show');
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const savedTheme = localStorage.getItem('theme') || (systemDark ? 'dark' : 'light');
@@ -41,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
             handleLogin();
         } else if (profiles.length > 0) {
             document.getElementById('profileSelect').value = 0;
-            loadProfile();
             loadProfile();
         }
     }
@@ -98,10 +145,7 @@ function handleMagicUrlInput(input) {
         const params = url.searchParams;
         let found = false;
 
-        // deviceID (magic link format) or device (share URL format)
         let newDevice = params.get('deviceID') || params.get('deviceId') || params.get('device_id') || params.get('device');
-
-        // card-Number (magic link format) or card (share URL format)
         let newCard = params.get('card-Number') || params.get('cardNumber') || params.get('card_number') || params.get('card');
 
         if (newDevice) {
@@ -124,11 +168,11 @@ function handleMagicUrlInput(input) {
                 input.value = '';
             }, 2000);
 
-            // Auto-propose profile save if both card and device found
             if (newCard && newDevice && validateCard() && validateDevice()) {
-                setTimeout(() => {
-                    if (confirm('Carte détectée ! Voulez-vous la sauvegarder en tant que nouveau profil ?')) {
-                        const name = prompt('Nom du profil :', 'Mon Profil');
+                setTimeout(async () => {
+                    const ok = await showDialog({ message: 'Carte détectée ! Voulez-vous la sauvegarder en tant que nouveau profil ?', type: 'confirm' });
+                    if (ok) {
+                        const name = await showDialog({ message: 'Nom du profil :', type: 'prompt', defaultValue: 'Mon Profil' });
                         if (name) {
                             profiles.push({ name, card: newCard, device: newDevice, favorite: false });
                             saveProfilesToStorage();
@@ -142,9 +186,7 @@ function handleMagicUrlInput(input) {
             }
         }
 
-    } catch (e) {
-        console.log('Invalid URL input', e);
-    }
+    } catch (e) { }
 }
 
 function toggleFavorite() {
@@ -166,22 +208,22 @@ function toggleFavorite() {
     loadProfile();
 }
 
-function saveProfile() {
+async function saveProfile() {
     const card = document.getElementById('cardNumber').value.trim();
     const device = document.getElementById('deviceId').value.trim();
     const index = document.getElementById('profileSelect').value;
 
     if (!card || !device) {
-        alert("Veuillez remplir les champs.");
+        await showDialog({ message: "Veuillez remplir les champs." });
         return;
     }
 
     if (!validateCard() || !validateDevice()) {
-        alert("Les données semblent invalides. Vérifiez les formats.");
+        await showDialog({ message: "Les données semblent invalides. Vérifiez les formats." });
         return;
     }
 
-    const name = prompt("Nom du profil :", index !== "" ? profiles[index].name : "Mon Profil");
+    const name = await showDialog({ message: "Nom du profil :", type: 'prompt', defaultValue: index !== "" ? profiles[index].name : "Mon Profil" });
     if (!name) return;
 
     let isFav = false;
@@ -206,13 +248,15 @@ function saveProfile() {
         document.getElementById('profileSelect').value = index;
     }
     loadProfile();
+    showToast('Profil sauvegardé !');
 }
 
-function deleteProfile() {
+async function deleteProfile() {
     const index = document.getElementById('profileSelect').value;
     if (index === "") return;
 
-    if (confirm("Supprimer ce profil ?")) {
+    const ok = await showDialog({ message: "Supprimer ce profil ?", type: 'confirm' });
+    if (ok) {
         profiles.splice(index, 1);
         saveProfilesToStorage();
         updateProfileSelect();
@@ -238,7 +282,7 @@ function toggleInput(id, btn) {
 function validateCard() {
     const input = document.getElementById('cardNumber');
     const error = document.getElementById('cardError');
-    const regex = /^V\d+$/i;
+    const regex = /^V\d{9,10}$/i;
     const valid = regex.test(input.value.trim());
 
     setValidationState(input, error, valid);
@@ -276,11 +320,7 @@ function resetForm() {
     document.getElementById('cardNumber').value = '';
     document.getElementById('deviceId').value = '';
     document.getElementById('magicUrl').value = '';
-
-    // Reset Select to default if it was on a profile? 
-    // Actually user might want to clear a profile's data but keep selection? 
-    // Let's just clear fields. If they select a profile again, it reloads.
-    document.getElementById('profileSelect').value = ""; // Set to "Nouveau profil"
+    document.getElementById('profileSelect').value = "";
 
     resetValidation();
     updateUiState();
@@ -325,12 +365,12 @@ function setTheme(theme) {
     localStorage.setItem('theme', theme);
 }
 
-function handleLogin() {
+async function handleLogin() {
     const cardInput = document.getElementById('cardNumber').value.trim();
     const deviceInput = document.getElementById('deviceId').value.trim();
 
     if (!cardInput || !deviceInput) {
-        alert("Veuillez remplir tous les champs");
+        await showDialog({ message: "Veuillez remplir tous les champs." });
         return;
     }
 
@@ -338,7 +378,7 @@ function handleLogin() {
     const isDeviceValid = validateDevice();
 
     if (!isCardValid || !isDeviceValid) {
-        alert("Veuillez corriger les erreurs de format avant de générer.");
+        await showDialog({ message: "Veuillez corriger les erreurs de format avant de générer." });
         return;
     }
 
@@ -393,6 +433,8 @@ function shareUrl() {
 
     navigator.clipboard.writeText(url.toString()).then(() => {
         showToast("URL copiée dans le presse-papier !");
+    }).catch(() => {
+        showToast("Impossible de copier l'URL.");
     });
 }
 
@@ -419,6 +461,10 @@ function handleOverlayClick(event) {
 }
 
 async function sha256(message) {
+    if (!crypto.subtle) {
+        showToast("Erreur : contexte non sécurisé (HTTPS requis).");
+        throw new Error('crypto.subtle unavailable');
+    }
     const msgBuffer = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -437,28 +483,31 @@ function generateGUID() {
 
 async function generateQR() {
     const { cardNumber, deviceId } = state;
-    const guid = generateGUID();
-    const timestamp = Math.floor(Date.now() / 1000);
-
-    const dataToHash = `${cardNumber}${guid}${timestamp}${deviceId}`;
-    const fullHash = await sha256(dataToHash);
-    const hashLast8 = fullHash.slice(-8).toUpperCase();
-
-    const content = `GM2:${cardNumber}:${guid}:${timestamp}:${hashLast8}`;
-
-    console.log("Génération:", content);
-
     const container = document.getElementById('qrcode');
-    container.innerHTML = '';
 
-    new QRCode(container, {
-        text: content,
-        width: 256,
-        height: 256,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.M
-    });
+    try {
+        const guid = generateGUID();
+        const timestamp = Math.floor(Date.now() / 1000);
+
+        const dataToHash = `${cardNumber}${guid}${timestamp}${deviceId}`;
+        const fullHash = await sha256(dataToHash);
+        const hashLast8 = fullHash.slice(-8).toUpperCase();
+
+        const content = `GM2:${cardNumber}:${guid}:${timestamp}:${hashLast8}`;
+
+        container.innerHTML = '';
+        new QRCode(container, {
+            text: content,
+            width: 256,
+            height: 256,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    } catch (e) {
+        container.innerHTML = '<p style="color: var(--danger); font-size: 0.85rem;">Erreur de génération</p>';
+        clearInterval(state.timerInterval);
+    }
 }
 
 function startTimer() {
@@ -476,6 +525,7 @@ function toggleFullscreen() {
     const display = document.getElementById('qrDisplay');
     const isEntering = !display.classList.contains('fullscreen');
     display.classList.toggle('fullscreen');
+    document.body.classList.toggle('fullscreen-active', isEntering);
 
     if (isEntering) {
         requestWakeLock();
@@ -492,9 +542,7 @@ async function requestWakeLock() {
                 state.wakeLock = null;
             });
         }
-    } catch (e) {
-        console.log('Wake Lock not supported or failed:', e);
-    }
+    } catch (e) { }
 }
 
 function releaseWakeLock() {
@@ -504,9 +552,6 @@ function releaseWakeLock() {
     }
 }
 
-// PWA Service Worker
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker Registered'))
-        .catch(err => console.error('Service Worker Failed', err));
+    navigator.serviceWorker.register('sw.js');
 }

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#ff4600">
     <title>Basic Fit QR Generator</title>
     <!-- SEO & Meta Tags -->
@@ -42,9 +42,11 @@
                     <option value="">Nouveau profil</option>
                 </select>
                 <button class="btn-icon" id="favBtn" onclick="toggleFavorite()"
-                    title="Favori (Démarrage auto)">☆</button>
-                <button class="btn-icon" onclick="saveProfile()" title="Sauvegarder">💾</button>
-                <button class="btn-icon" onclick="deleteProfile()" title="Supprimer">🗑️</button>
+                    aria-label="Marquer comme favori" title="Favori (Démarrage auto)">☆</button>
+                <button class="btn-icon" onclick="saveProfile()"
+                    aria-label="Sauvegarder le profil" title="Sauvegarder">💾</button>
+                <button class="btn-icon" onclick="deleteProfile()"
+                    aria-label="Supprimer le profil" title="Supprimer">🗑️</button>
             </div>
 
             <div class="form-group" id="magicUrlSection">
@@ -53,15 +55,14 @@
                     <input type="text" id="magicUrl" placeholder="Coller l'URL de connexion ici..."
                         oninput="handleMagicUrlInput(this)">
                 </div>
-                <div id="magicUrlMsg" class="validation-msg" style="color: var(--success-color)">Infos récupérées !
-                </div>
+                <div id="magicUrlMsg" class="validation-msg" style="color: var(--success)">Infos récupérées !</div>
                 <div class="divider">ou</div>
             </div>
 
             <div class="form-group">
                 <label for="cardNumber">Numéro de Carte</label>
                 <div class="input-wrapper">
-                    <input type="text" id="cardNumber" placeholder="Ex: V012345678" oninput="validateCard()">
+                    <input type="password" id="cardNumber" placeholder="Ex: V012345678" oninput="validateCard()">
                     <button class="input-toggle" onclick="toggleInput('cardNumber', this)">👁️</button>
                 </div>
                 <div id="cardError" class="validation-msg">Format invalide (Ex: V123456789)</div>
@@ -99,7 +100,7 @@
                 Se rafraîchit toutes les 5s.
                 <br>
                 <a href="#" onclick="toggleFullscreen(); return false;"
-                    style="color: var(--primary-color); font-size: 0.8rem;">[🔍 Mode Plein Écran]</a>
+                    style="color: var(--primary); font-size: 0.8rem;">[🔍 Mode Plein Écran]</a>
             </div>
 
             <div style="margin-top: 20px;">
@@ -112,8 +113,8 @@
     </div>
 
     <div class="footer">
-        v2.2 - Merci à <a href="https://blog.szeroki.fr/posts/les-qr-codes-de-basic-fit-comment-ca-fonctionne"
-            target="_blank">Szeroki</a> pour la documentation.
+        v2.3 - Merci à <a href="https://blog.szeroki.fr/posts/les-qr-codes-de-basic-fit-comment-ca-fonctionne"
+            target="_blank" rel="noopener noreferrer">Szeroki</a> pour la documentation.
     </div>
 
     <div id="helpModal" class="modal-overlay" onclick="handleOverlayClick(event)">
@@ -151,7 +152,26 @@
         </div>
     </div>
 
+    <div id="dialogOverlay" class="modal-overlay">
+        <div class="modal dialog-modal">
+            <h3 id="dialogTitle" class="modal-title"></h3>
+            <p id="dialogMessage"></p>
+            <input type="text" id="dialogInput" class="dialog-input hidden">
+            <div class="dialog-actions">
+                <button id="dialogCancel" class="secondary">Annuler</button>
+                <button id="dialogConfirm">OK</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="toast">URL copiée !</div>
+
+    <noscript>
+        <div style="text-align:center; padding:2rem; font-family:sans-serif;">
+            <h1>Basic Fit QR Generator</h1>
+            <p>Cette application nécessite JavaScript pour fonctionner.</p>
+        </div>
+    </noscript>
 
     <script src="script.js"></script>
 </body>
